@@ -1,4 +1,3 @@
-// Rename this file to aws-exports.js after filling in your values
 const awsmobile = {
     "aws_project_region": "us-east-1",
     "aws_cognito_region": "us-east-1",
