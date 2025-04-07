@@ -6,7 +6,7 @@ const Quiz = () => {
     const [currentRound, setCurrentRound] = useState(1);
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [score, setScore] = useState(0);
-    const [showResults, setShowResults] = useState(false);
+    // Removed showResults state as we're navigating directly to dashboard
     const navigate = useNavigate();
 
     const quizData = [
@@ -100,7 +100,7 @@ const Quiz = () => {
         }
     ];
 
-    const handleAnswer = (selectedAnswer) => {
+    const handleAnswer = async (selectedAnswer) => {
         const currentQuestionData = quizData[currentRound - 1].questions[currentQuestion];
         
         if (currentQuestionData.type === "multiple-choice") {
@@ -127,7 +127,7 @@ const Quiz = () => {
 
     const saveResults = async () => {
         try {
-            const response = await fetch('/api/quiz/save', {
+            const response = await fetch('/api/quiz/results', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
