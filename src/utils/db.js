@@ -13,6 +13,30 @@ async function initializeDatabase() {
     const dynamodbAdmin = new AWS.DynamoDB();
     try {
         await dynamodbAdmin.describeTable({ TableName: TABLE_NAME }).promise();
+        console.log('Table already exists');
+    } catch (error) {
+        if (error.code === 'ResourceNotFoundException') {
+            console.log('Creating new DynamoDB table...');
+            const params = {
+                TableName: TABLE_NAME,
+                KeySchema: [
+                    { AttributeName: 'id', KeyType: 'HASH' }
+                ],
+                AttributeDefinitions: [
+                    { AttributeName: 'id', AttributeType: 'S' }
+                ],
+                ProvisionedThroughput: {
+                    ReadCapacityUnits: 5,
+                    WriteCapacityUnits: 5
+                }
+            };
+            await dynamodbAdmin.createTable(params).promise();
+            console.log('Table created successfully');
+            // Wait for the table to be active
+            await dynamodbAdmin.waitFor('tableExists', { TableName: TABLE_NAME }).promise();
+        } else {
+            throw error;
+        }
         console.log('DynamoDB table already exists');
     } catch (err) {
         if (err.code === 'ResourceNotFoundException') {
@@ -82,7 +106,13 @@ async function getQuizResults() {
     }
 }
 
+// Initialize the database when this module is loaded
+initializeDatabase()
+    .then(() => console.log('Database initialization complete'))
+    .catch(err => console.error('Failed to initialize database:', err));
+
 module.exports = {
     saveQuizResult,
-    getQuizResults
+    getQuizResults,
+    initializeDatabase  // Export this in case we need to call it explicitly
 };
