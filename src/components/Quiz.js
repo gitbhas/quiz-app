@@ -120,7 +120,7 @@ const Quiz = () => {
             setCurrentRound(currentRound + 1);
             setCurrentQuestion(0);
         } else {
-            setShowResults(true);
+            navigate('/dashboard');
             saveResults();
         }
     };
