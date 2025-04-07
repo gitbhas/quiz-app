@@ -6,7 +6,7 @@ const Quiz = () => {
     const [currentRound, setCurrentRound] = useState(1);
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [score, setScore] = useState(0);
-    // Removed showResults state as we're navigating directly to dashboard
+    const [showResults, setShowResults] = useState(false);
     const navigate = useNavigate();
 
     const quizData = [
