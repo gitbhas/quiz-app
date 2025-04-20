@@ -2,53 +2,114 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.question {
-    background-color: #f5f5f5;
-    padding: 20px;
-    border-radius: 8px;
+.quiz-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    margin: 15px 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #4caf50;
+    transition: width 0.3s ease;
+}
+
+.question-counter {
+    color: #666;
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+.question-container {
     margin-bottom: 20px;
 }
 
-.options {
+.question-container h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.dropdown-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.dropdown-select[multiple] {
+    height: auto;
+    min-height: 150px;
+}
+
+.radio-options {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.option-button {
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.radio-option input[type="radio"] {
+    margin: 0;
+}
+
+.text-input {
+    width: 100%;
     padding: 10px;
-    border: none;
-    background-color: #007bff;
-    color: white;
+    border: 1px solid #ddd;
     border-radius: 4px;
+    font-size: 16px;
+    resize: vertical;
+    min-height: 100px;
+    margin-bottom: 10px;
+}
+
+.submit-button, .dashboard-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
-.option-button:hover {
-    background-color: #0056b3;
+.submit-button:hover, .dashboard-button:hover {
+    background-color: #45a049;
 }
 
-.show-tell textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    resize: vertical;
+.help-text {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
 }
 
-button {
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #218838;
+@media (max-width: 600px) {
+    .quiz-container {
+        padding: 15px;
+    }
+    
+    .question-container h3 {
+        font-size: 18px;
+    }
 }

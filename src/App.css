@@ -1,34 +1,151 @@
-nav {
-  background-color: #f8f9fa;
-  padding: 1rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* App Container */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-nav ul {
+/* Header */
+.app-header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.app-header h1 {
   margin: 0;
-  padding: 0;
+  font-size: 1.8rem;
 }
 
-nav a {
-  color: #007bff;
+/* Navigation */
+.main-nav ul {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 1rem 0 0;
+  gap: 1.5rem;
+}
+
+.main-nav a {
+  color: white;
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.3s;
 }
 
-nav a:hover {
-  color: #0056b3;
+.main-nav a:hover {
+  color: #3498db;
 }
 
-nav button {
-  background-color: #dc3545;
+.sign-out-button {
+  background-color: transparent;
+  border: 1px solid white;
   color: white;
-  border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 0.8rem;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.3s;
 }
 
-nav button:hover {
-  background-color: #c82333;
+.sign-out-button:hover {
+  background-color: white;
+  color: #2c3e50;
+}
+
+/* Main Content */
+.app-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f5f5f5;
+}
+
+/* Home Page */
+.home-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.home-container h2 {
+  color: #2c3e50;
+  margin-top: 0;
+}
+
+.home-content {
+  margin-top: 1.5rem;
+}
+
+.home-content ul {
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.home-content li {
+  margin-bottom: 0.5rem;
+}
+
+.home-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.action-button {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.action-button:hover {
+  background-color: #2980b9;
+}
+
+.action-button.secondary {
+  background-color: #95a5a6;
+}
+
+.action-button.secondary:hover {
+  background-color: #7f8c8d;
+}
+
+/* Footer */
+.app-footer {
+  background-color: #2c3e50;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 1rem;
+  }
+  
+  .main-nav ul {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .app-content {
+    padding: 1rem;
+  }
+  
+  .home-actions {
+    flex-direction: column;
+  }
+  
+  .action-button {
+    text-align: center;
+  }
 }

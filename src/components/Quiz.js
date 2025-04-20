@@ -1,148 +1,220 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Auth } from 'aws-amplify';
 import './Quiz.css';
 
 const Quiz = () => {
-    const [currentRound, setCurrentRound] = useState(1);
     const [currentQuestion, setCurrentQuestion] = useState(0);
+    const [answers, setAnswers] = useState({});
     const [score, setScore] = useState(0);
     const [showResults, setShowResults] = useState(false);
+    const [userId, setUserId] = useState('');
     const navigate = useNavigate();
 
+    useEffect(() => {
+        // Get the current authenticated user
+        const fetchUser = async () => {
+            try {
+                const user = await Auth.currentAuthenticatedUser();
+                setUserId(user.username);
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            }
+        };
+        fetchUser();
+    }, []);
+
     const quizData = [
-        // Round 1: Multiple Choice
         {
-            round: 1,
-            questions: [
-                {
-                    question: "What is React?",
-                    options: [
-                        "A JavaScript library for building user interfaces",
-                        "A database management system",
-                        "A programming language",
-                        "An operating system"
-                    ],
-                    correct: 0,
-                    type: "multiple-choice"
-                },
-                {
-                    question: "Which hook is used for side effects in React?",
-                    options: [
-                        "useState",
-                        "useEffect",
-                        "useContext",
-                        "useReducer"
-                    ],
-                    correct: 1,
-                    type: "multiple-choice"
-                },
-                {
-                    question: "What is JSX?",
-                    options: [
-                        "A JavaScript XML syntax",
-                        "A JavaScript compiler",
-                        "A React framework",
-                        "A package manager"
-                    ],
-                    correct: 0,
-                    type: "multiple-choice"
-                }
-            ]
+            question: "What is your favorite programming language?",
+            type: "dropdown",
+            options: ["JavaScript", "Python", "Java", "C++", "Ruby", "Go"],
+            points: 1
         },
-        // Round 2: Show and Tell
         {
-            round: 2,
-            questions: [
-                {
-                    question: "Explain how React components work and provide an example.",
-                    type: "show-tell",
-                    answer: ""
-                },
-                {
-                    question: "Describe the difference between props and state in React.",
-                    type: "show-tell",
-                    answer: ""
-                },
-                {
-                    question: "Explain the concept of React hooks and list three commonly used hooks.",
-                    type: "show-tell",
-                    answer: ""
-                }
-            ]
+            question: "Do you have experience with React?",
+            type: "radio",
+            options: ["Yes", "No"],
+            points: 1
         },
-        // Round 3: Multiple Choice Advanced
         {
-            round: 3,
-            questions: [
-                {
-                    question: "What is the Virtual DOM?",
-                    options: [
-                        "A lightweight copy of the actual DOM",
-                        "A browser extension",
-                        "A JavaScript engine",
-                        "A React component"
-                    ],
-                    correct: 0,
-                    type: "multiple-choice"
-                },
-                {
-                    question: "Which lifecycle method is called after a component updates?",
-                    options: [
-                        "componentDidMount",
-                        "componentWillUpdate",
-                        "componentDidUpdate",
-                        "componentWillMount"
-                    ],
-                    correct: 2,
-                    type: "multiple-choice"
-                }
-            ]
+            question: "Select all the tools you are familiar with:",
+            type: "dropdown-multi",
+            options: ["Git", "Docker", "AWS", "Jenkins", "Kubernetes", "Terraform"],
+            points: 1
+        },
+        {
+            question: "Describe your experience with web development:",
+            type: "text",
+            points: 1
+        },
+        {
+            question: "How many years of programming experience do you have?",
+            type: "dropdown",
+            options: ["Less than 1 year", "1-3 years", "3-5 years", "5-10 years", "More than 10 years"],
+            points: 1
+        },
+        {
+            question: "Are you interested in learning new technologies?",
+            type: "radio",
+            options: ["Yes", "No"],
+            points: 1
+        },
+        {
+            question: "What areas of software development are you most interested in?",
+            type: "dropdown-multi",
+            options: ["Frontend", "Backend", "DevOps", "Mobile", "Data Science", "Machine Learning", "Security"],
+            points: 1
+        },
+        {
+            question: "Briefly explain why you are interested in this position:",
+            type: "text",
+            points: 1
         }
     ];
 
-    const handleAnswer = async (selectedAnswer) => {
-        const currentQuestionData = quizData[currentRound - 1].questions[currentQuestion];
-        
-        if (currentQuestionData.type === "multiple-choice") {
-            if (selectedAnswer === currentQuestionData.correct) {
-                setScore(score + 1);
-            }
-        } else {
-            // Handle show and tell answers
-            // Save the answer for review
-            currentQuestionData.answer = selectedAnswer;
+    const handleAnswer = (answer) => {
+        // Save the answer
+        const updatedAnswers = { ...answers };
+        updatedAnswers[currentQuestion] = answer;
+        setAnswers(updatedAnswers);
+
+        // Calculate score for this question
+        const currentQuestionData = quizData[currentQuestion];
+        if (currentQuestionData.type === "radio" && answer === "Yes") {
+            setScore(score + currentQuestionData.points);
+        } else if (currentQuestionData.type !== "radio") {
+            setScore(score + currentQuestionData.points);
         }
 
+        // Move to next question or finish quiz
         const nextQuestion = currentQuestion + 1;
-        if (nextQuestion < quizData[currentRound - 1].questions.length) {
+        if (nextQuestion < quizData.length) {
             setCurrentQuestion(nextQuestion);
-        } else if (currentRound < quizData.length) {
-            setCurrentRound(currentRound + 1);
-            setCurrentQuestion(0);
         } else {
-            navigate('/dashboard');
-            saveResults();
+            finishQuiz(updatedAnswers);
         }
     };
 
-    const saveResults = async () => {
+    const finishQuiz = async (finalAnswers) => {
         try {
-            const response = await fetch('/api/quiz/results', {
+            // Save quiz results
+            const response = await fetch('/api/quiz/save', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     score,
-                    totalQuestions: quizData.reduce((acc, round) => acc + round.questions.length, 0),
-                    timestamp: new Date().toISOString()
+                    totalQuestions: quizData.length,
+                    userId,
+                    answers: finalAnswers
                 })
             });
+
             if (!response.ok) {
                 throw new Error('Failed to save results');
             }
+
+            setShowResults(true);
         } catch (error) {
             console.error('Error saving quiz results:', error);
+        }
+    };
+
+    const renderQuestion = () => {
+        const currentQuestionData = quizData[currentQuestion];
+
+        switch (currentQuestionData.type) {
+            case 'dropdown':
+                return (
+                    <div className="question-container">
+                        <h3>{currentQuestionData.question}</h3>
+                        <select 
+                            className="dropdown-select"
+                            onChange={(e) => handleAnswer(e.target.value)}
+                            defaultValue=""
+                        >
+                            <option value="" disabled>Select an option</option>
+                            {currentQuestionData.options.map((option, index) => (
+                                <option key={index} value={option}>
+                                    {option}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                );
+            
+            case 'radio':
+                return (
+                    <div className="question-container">
+                        <h3>{currentQuestionData.question}</h3>
+                        <div className="radio-options">
+                            {currentQuestionData.options.map((option, index) => (
+                                <div key={index} className="radio-option">
+                                    <input
+                                        type="radio"
+                                        id={`option-${index}`}
+                                        name="radio-option"
+                                        value={option}
+                                        onChange={() => handleAnswer(option)}
+                                    />
+                                    <label htmlFor={`option-${index}`}>{option}</label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            
+            case 'dropdown-multi':
+                return (
+                    <div className="question-container">
+                        <h3>{currentQuestionData.question}</h3>
+                        <select 
+                            className="dropdown-select"
+                            onChange={(e) => {
+                                const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+                                handleAnswer(selectedOptions);
+                            }}
+                            multiple
+                            size={currentQuestionData.options.length}
+                        >
+                            {currentQuestionData.options.map((option, index) => (
+                                <option key={index} value={option}>
+                                    {option}
+                                </option>
+                            ))}
+                        </select>
+                        <p className="help-text">Hold Ctrl (or Cmd on Mac) to select multiple options</p>
+                    </div>
+                );
+            
+            case 'text':
+                return (
+                    <div className="question-container">
+                        <h3>{currentQuestionData.question}</h3>
+                        <textarea
+                            className="text-input"
+                            rows="4"
+                            placeholder="Type your answer here..."
+                            onChange={(e) => handleAnswer(e.target.value)}
+                        />
+                        <button 
+                            className="submit-button"
+                            onClick={() => {
+                                const textValue = document.querySelector('.text-input').value;
+                                if (textValue.trim()) {
+                                    handleAnswer(textValue);
+                                }
+                            }}
+                        >
+                            Submit Answer
+                        </button>
+                    </div>
+                );
+            
+            default:
+                return <div>Unknown question type</div>;
         }
     };
 
@@ -150,44 +222,31 @@ const Quiz = () => {
         return (
             <div className="quiz-container">
                 <h2>Quiz Complete!</h2>
-                <p>Your score: {score}</p>
-                <button onClick={() => navigate('/dashboard')}>View Dashboard</button>
+                <p>Thank you for completing the quiz.</p>
+                <button 
+                    className="dashboard-button"
+                    onClick={() => navigate('/dashboard')}
+                >
+                    View Dashboard
+                </button>
             </div>
         );
     }
 
-    const currentQuestionData = quizData[currentRound - 1].questions[currentQuestion];
-
     return (
         <div className="quiz-container">
-            <h2>Round {currentRound}</h2>
-            <div className="question">
-                <h3>{currentQuestionData.question}</h3>
-                {currentQuestionData.type === "multiple-choice" ? (
-                    <div className="options">
-                        {currentQuestionData.options.map((option, index) => (
-                            <button
-                                key={index}
-                                onClick={() => handleAnswer(index)}
-                                className="option-button"
-                            >
-                                {option}
-                            </button>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="show-tell">
-                        <textarea
-                            rows="4"
-                            placeholder="Enter your answer..."
-                            onChange={(e) => handleAnswer(e.target.value)}
-                        />
-                        <button onClick={() => handleAnswer(currentQuestionData.answer)}>
-                            Submit Answer
-                        </button>
-                    </div>
-                )}
+            <div className="quiz-header">
+                <h2>Quiz</h2>
+                <div className="progress-bar">
+                    <div 
+                        className="progress-fill" 
+                        style={{ width: `${((currentQuestion + 1) / quizData.length) * 100}%` }}
+                    ></div>
+                </div>
+                <p className="question-counter">Question {currentQuestion + 1} of {quizData.length}</p>
             </div>
+            
+            {renderQuestion()}
         </div>
     );
 };
