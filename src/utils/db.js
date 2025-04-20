@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk');
+import AWS from 'aws-sdk';
 
 // Configure AWS SDK
 AWS.config.update({
@@ -37,36 +37,8 @@ async function initializeDatabase() {
         } else {
             throw error;
         }
-        console.log('DynamoDB table already exists');
-    } catch (err) {
-        if (err.code === 'ResourceNotFoundException') {
-            const params = {
-                TableName: TABLE_NAME,
-                KeySchema: [
-                    { AttributeName: 'id', KeyType: 'HASH' }
-                ],
-                AttributeDefinitions: [
-                    { AttributeName: 'id', AttributeType: 'S' }
-                ],
-                ProvisionedThroughput: {
-                    ReadCapacityUnits: 5,
-                    WriteCapacityUnits: 5
-                }
-            };
-            try {
-                await dynamodbAdmin.createTable(params).promise();
-                console.log('Created DynamoDB table');
-            } catch (createErr) {
-                console.error('Error creating table:', createErr);
-            }
-        } else {
-            console.error('Error checking table:', err);
-        }
     }
 }
-
-// Initialize the database when the module loads
-initializeDatabase();
 
 async function saveQuizResult(score, totalQuestions) {
     const timestamp = new Date().toISOString();
@@ -111,7 +83,7 @@ initializeDatabase()
     .then(() => console.log('Database initialization complete'))
     .catch(err => console.error('Failed to initialize database:', err));
 
-module.exports = {
+export {
     saveQuizResult,
     getQuizResults,
     initializeDatabase  // Export this in case we need to call it explicitly
